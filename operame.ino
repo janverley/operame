@@ -48,6 +48,10 @@ const int       pin_sensor_tx    = 26;
 const int       pin_pcb_ok       = 12;   // pulled to GND by PCB trace
 int             mhz_co2_init     = 410;  // magic value reported during init
 
+enum DisplayMode { Number, Colors };
+
+DisplayMode display_mode = DisplayMode::Number;
+
 // Configuration via WiFiSettings
 unsigned long   mqtt_interval;
 bool            ota_enabled;
@@ -166,6 +170,20 @@ void display_ppm(int ppm) {
     display_big(String(ppm), fg, bg);
 }
 
+void display_only_color(int ppm) {
+    int bg;
+    if (ppm >= co2_critical) {
+        bg = TFT_RED;
+    } else if (ppm >= co2_warning) {
+        bg = TFT_YELLOW;
+    } else {
+        bg = TFT_GREEN;
+    }
+
+    clear_sprite(bg);
+}
+
+
 void display_ppm_t_h(int ppm, float t, float h) {
     int fg, bg;
     if (ppm >= co2_critical) {
@@ -203,6 +221,20 @@ void calibrate() {
 
     set_zero();    // actually instantaneous
     delay(15000);  // give time to read long message
+}
+
+void toggle_display_mode(){
+    switch (display_mode)
+    {
+    case DisplayMode::Colors:
+        display_mode = DisplayMode::Number;
+        break;
+    case DisplayMode::Number:
+        display_mode = DisplayMode::Colors;
+        break;    
+    default:
+        break;
+    }
 }
 
 void ppm_demo() {
@@ -256,7 +288,10 @@ void check_portalbutton() {
 }
 
 void check_demobutton() {
-    if (button(pin_demobutton)) ppm_demo();
+    if (button(pin_demobutton)) {
+    //    ppm_demo();
+    toggle_display_mode();
+    }
 }
 
 void check_buttons() {
@@ -582,15 +617,33 @@ void loop() {
         } else if (co2 == 0) {
             display_big(T.wait);
         } else {
-            // Check if there is a humidity sensor
-            if (isnan(h) || isnan(t)) {
-                // Only display CO2 value (the old way)
-                // some MH-Z19's go to 10000 but the display has space for 4 digits
-                display_ppm(co2 > 9999 ? 9999 : co2);
-            } else {
-                // Display also humidity and temperature
-                display_ppm_t_h(co2 > 9999 ? 9999 : co2, t, h);
-            }
+
+switch (display_mode)
+{
+    case DisplayMode::Number:
+    {
+        // Check if there is a humidity sensor
+        if (isnan(h) || isnan(t)) {
+            // Only display CO2 value (the old way)
+            // some MH-Z19's go to 10000 but the display has space for 4 digits
+            display_ppm(co2 > 9999 ? 9999 : co2);
+        } else {
+            // Display also humidity and temperature
+            display_ppm_t_h(co2 > 9999 ? 9999 : co2, t, h);
+        }
+    }
+    break;
+
+    case DisplayMode::Colors:
+    {
+        display_only_color(co2);
+        break;
+    }
+default:
+    break;
+}
+
+            
         }
     }
 
