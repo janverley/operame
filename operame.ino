@@ -147,7 +147,7 @@ void display_lines(const std::list<String>& lines, int fg = TFT_WHITE, int bg = 
 void display_logo() {
     clear_sprite();
     sprite.setSwapBytes(true);
-    sprite.pushImage(0, 0, 240, 135, logo_vliegertje);
+    sprite.pushImage(0, 0, 240, 135, LOGO_VLIEGERTJE);
     sprite.pushSprite(0, 0);
 }
 
@@ -224,7 +224,7 @@ void calibrate() {
 }
 
 void toggle_display_mode(){
-    Serial.print("Current Display Mode:");
+    Serial.print("toggle_display_mode ");
     Serial.println(display_mode);
     switch (display_mode)
     {
@@ -237,7 +237,7 @@ void toggle_display_mode(){
     default:
         break;
     }
-    Serial.print("Current Display Mode:");
+    Serial.print("New Display Mode:");
     Serial.println(display_mode);
 }
 
@@ -292,6 +292,7 @@ void check_portalbutton() {
 }
 
 void check_demobutton() {
+    Serial.println("check_demobutton");
     if (button(pin_demobutton)) {
     //    ppm_demo();
     Serial.println("demo");
@@ -300,7 +301,7 @@ void check_demobutton() {
 }
 
 void check_buttons() {
-    Serial.println("check buttons");
+    Serial.println("check_buttons");
     check_portalbutton();
     check_demobutton();
 }
