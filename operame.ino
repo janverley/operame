@@ -292,7 +292,6 @@ void check_portalbutton() {
 }
 
 void check_demobutton() {
-    Serial.println("check_demobutton");
     if (button(pin_demobutton)) {
     //    ppm_demo();
     Serial.println("demo");
@@ -301,7 +300,6 @@ void check_demobutton() {
 }
 
 void check_buttons() {
-    Serial.println("check_buttons");
     check_portalbutton();
     check_demobutton();
 }
@@ -628,31 +626,31 @@ void loop() {
             display_big(T.wait);
         }
         else {
-switch (display_mode)
-{
-    case DisplayMode::Number:
-    {
-        // Check if there is a humidity sensor
-        if (isnan(h) || isnan(t)) {
-            // Only display CO2 value (the old way)
-            // some MH-Z19's go to 10000 but the display has space for 4 digits
-            display_ppm(co2 > 9999 ? 9999 : co2);
+            switch (display_mode)
+            {
+                case DisplayMode::Number:
+                {
+                    // Check if there is a humidity sensor
+                    if (isnan(h) || isnan(t)) {
+                        // Only display CO2 value (the old way)
+                        // some MH-Z19's go to 10000 but the display has space for 4 digits
+                        display_ppm(co2 > 9999 ? 9999 : co2);
+                                }
+                                else {
+                        // Display also humidity and temperature
+                        display_ppm_t_h(co2 > 9999 ? 9999 : co2, t, h);
                     }
-                    else {
-            // Display also humidity and temperature
-            display_ppm_t_h(co2 > 9999 ? 9999 : co2, t, h);
-        }
-    }
-    break;
+                }
+                break;
 
-    case DisplayMode::Colors:
-    {
-        display_only_color(co2);
-        break;
-    }
-default:
-    break;
-}
+                case DisplayMode::Colors:
+                {
+                    display_only_color(co2);
+                    break;
+                }
+            default:
+                break;
+            }
         }
     }
 
