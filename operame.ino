@@ -147,7 +147,7 @@ void display_lines(const std::list<String>& lines, int fg = TFT_WHITE, int bg = 
 void display_logo() {
     clear_sprite();
     sprite.setSwapBytes(true);
-    sprite.pushImage(0, 0, 240, 135, LOGO_VLIEGERTJE);
+    sprite.pushImage(0, 0, 240, 135, logo_vliegertje);
     sprite.pushSprite(0, 0);
 }
 
@@ -224,6 +224,8 @@ void calibrate() {
 }
 
 void toggle_display_mode(){
+    Serial.print("Current Display Mode:");
+    Serial.println(display_mode);
     switch (display_mode)
     {
     case DisplayMode::Colors:
@@ -235,6 +237,8 @@ void toggle_display_mode(){
     default:
         break;
     }
+    Serial.print("Current Display Mode:");
+    Serial.println(display_mode);
 }
 
 void ppm_demo() {
@@ -290,11 +294,13 @@ void check_portalbutton() {
 void check_demobutton() {
     if (button(pin_demobutton)) {
     //    ppm_demo();
+    Serial.println("demo");
     toggle_display_mode();
     }
 }
 
 void check_buttons() {
+    Serial.println("check buttons");
     check_portalbutton();
     check_demobutton();
 }
@@ -603,6 +609,8 @@ void loop() {
         h = dht.readHumidity();
         t = dht.readTemperature();
         // Print data to serial port
+        Serial.print(display_mode);
+        Serial.print(",");
         Serial.print(co2);
         Serial.print(",");
         Serial.print(t);
@@ -614,10 +622,11 @@ void loop() {
     every(50) {
         if (co2 < 0) {
             display_big(T.error_sensor, TFT_RED);
-        } else if (co2 == 0) {
+        }
+        else if (co2 == 0) {
             display_big(T.wait);
-        } else {
-
+        }
+        else {
 switch (display_mode)
 {
     case DisplayMode::Number:
@@ -627,7 +636,8 @@ switch (display_mode)
             // Only display CO2 value (the old way)
             // some MH-Z19's go to 10000 but the display has space for 4 digits
             display_ppm(co2 > 9999 ? 9999 : co2);
-        } else {
+                    }
+                    else {
             // Display also humidity and temperature
             display_ppm_t_h(co2 > 9999 ? 9999 : co2, t, h);
         }
@@ -642,8 +652,6 @@ switch (display_mode)
 default:
     break;
 }
-
-            
         }
     }
 
