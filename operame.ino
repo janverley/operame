@@ -181,6 +181,7 @@ void display_only_color(int ppm) {
     }
 
     clear_sprite(bg);
+    sprite.pushSprite(0, 0);
 }
 
 
